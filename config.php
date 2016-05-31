@@ -5,14 +5,14 @@
 //BAE/SAE/JAE的数据库地址，用户名，密码请参考相关文档
 
 //MySQL 数据库地址，普通主机一般为localhost
-define('DB_HOST','localhost');
+define('DB_HOST',getenv('OPENSHIFT_MYSQL_DB_HOST'));
 //MySQL 数据库用户名
-define('DB_USER','root');
+define('DB_USER',getenv('OPENSHIFT_MYSQL_DB_USERNAME'));
 //MySQL 数据库密码
-define('DB_PASSWD','000000');
+define('DB_PASSWD',getenv('OPENSHIFT_MYSQL_DB_PASSWORD'));
 //MySQL 数据库名称(存放百度贴吧云签到的)
 define('DB_NAME','tiebacloud');
-//MySQL 数据库前缀，建议保持默认
+define('DB_NAME',getenv('OPENSHIFT_APP_NAME'));
 define('DB_PREFIX','tc_');
 //加密用盐，请乱打，留空为不使用盐
 define('SYSTEM_SALT','');
