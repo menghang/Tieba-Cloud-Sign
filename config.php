@@ -11,8 +11,8 @@ define('DB_USER',getenv('OPENSHIFT_MYSQL_DB_USERNAME'));
 //MySQL 数据库密码
 define('DB_PASSWD',getenv('OPENSHIFT_MYSQL_DB_PASSWORD'));
 //MySQL 数据库名称(存放百度贴吧云签到的)
-define('DB_NAME','tiebacloud');
 define('DB_NAME',getenv('OPENSHIFT_APP_NAME'));
+//MySQL 数据库前缀，建议保持默认
 define('DB_PREFIX','tc_');
 //加密用盐，请乱打，留空为不使用盐
 define('SYSTEM_SALT','');
