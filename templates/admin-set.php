@@ -32,7 +32,7 @@ if (isset($i['mode'][2]) && $i['mode'][2] == 'sign') {
 	$set2['name'] = 'signset';
 	$set2['url'] = 'setting.php?mod=admin:set&type=sign';
 	$set2['method'] = '1';
-	
+
 	$content2['cron_limit'] = array('td1'=>'<b>单表单次签到执行数量</b><br/>0为一次性全部签到。此功能非常重要，设置为0会导致每次都扫描贴吧表，效率极低，请按需修改','type'=>'number','text'=>'注意这是控制单个表的，当你有N个表时，单次签到数量为 N × 分表数','extra'=>'min="0" step="1"');
 	$content2['bduss_num'] = array('td1'=>'<b>最大允许用户绑定账号数</b><br/>0为无限，-1为禁止绑定，对管理员无效','type'=>'number','text'=>'','extra'=>'min="-1" step="1"');
 	$content2['tb_max'] = array('td1'=>'<b>最大关注贴吧数量</b><br/>0为不限,对管理员无效','type'=>'number','text'=>'','extra'=>'min="0" step="1"');
@@ -55,8 +55,8 @@ if (isset($i['mode'][2]) && $i['mode'][2] == 'sign') {
 	        </td>
 	    </tr>';
 	$content2['sign_mode'] = array('html'=>$smhtml,'type'=>'else');
-	$content2['sign_scan'] = array('td1'=>'<b>贴吧数据表搜寻方法</b><br/><br/><input type="button" class="btn btn-default" onclick="viewSignScanModeHelp();" value="查看帮助">','type'=>'select','text'=>'<br/>该设置影响签到效率，不当的设置可能会导致效率降低并漏签');     
-	$content2['sign_scan']['select'] = array('0'=>'永不随机，按顺序抽取','1'=>'随机，使用 JOIN','2'=>'随机，使用 ORDER BY RAND()');   
+	$content2['sign_scan'] = array('td1'=>'<b>贴吧数据表搜寻方法</b><br/><br/><input type="button" class="btn btn-default" onclick="viewSignScanModeHelp();" value="查看帮助">','type'=>'select','text'=>'<br/>该设置影响签到效率，不当的设置可能会导致效率降低并漏签');
+	$content2['sign_scan']['select'] = array('0'=>'永不随机，按顺序抽取','1'=>'随机，使用 JOIN','2'=>'随机，使用 ORDER BY RAND()');
 	$ft1 = option::get('fb');
 	if (!empty($i['tabpart'])) {
 		$temp = '';
@@ -108,7 +108,7 @@ if (isset($i['mode'][2]) && $i['mode'][2] == 'sign') {
 	$content1['ann'] = array('html'=>$annhtml,'type'=>'else');
 	$content1['sign_multith'] = array('td1'=>'<b>计划任务线程数</b><br/>0单线程，此为模拟多线程','type'=>'number','text'=>'','extra'=>'min="0" step="1"');
 	$content1['cron_asyn'] = array('td1'=>'<b>计划任务同时运行</b><br/>主机需支持fsockopen','type'=>'checkbox','text'=>'当 do.php 被运行时，所有计划任务同时运行，有效提高计划任务效率，在高配机器上会加速任务，低配机器上可能会导致减速','extra'=>'');
-	$content1['cron_pw'] = array('td1'=>'<b>计划任务密码</b><br/>留空为无密码，不能包含空格等特殊字符','type'=>'text','text'=>'启用后需要通过访问 <b>do.php?pw=密码</b> 才能执行计划任务，POST/GET 均可','extra'=>'');
+	$content1['cron_pw'] = array('td1'=>'<b>计划任务密码</b><br/>留空为无密码，不能包含空格等特殊字符<br/><a href="javascript:;" onclick="alert(\'你需要通过访问 <b>do.php?pw=密码</b> 执行计划任务<br/>例如：'.SYSTEM_URL.'do.php?pw=yourpassword<br/><br/>若您要通过命令行执行计划任务，请加上参数 <b>--pw=密码</b><br/>例如：php do.php --pw=yourpassword<br/>命令行模式注意：你需要指明do.php的绝对路径，或者将do.php加入PATH\')">帮助：启用密码功能后如何执行计划任务？</a>','type'=>'text','text'=>'','extra'=>'');
 	$reg1 = option::get('enable_reg') == 1 ? ' checked' : '' ;
 	$reg2 = option::get('protect_reg') == 1 ? ' checked' : '' ;
 	$reg3 = option::get('yr_reg');
@@ -205,4 +205,4 @@ if (isset($i['mode'][2]) && $i['mode'][2] == 'sign') {
 }
 ?>
 
-<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp; <a href="http://fyy.l19l.com/" target="_blank">FYY</a>
+<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy.l19l.com/" target="_blank">FYY</a> &amp; <a href="https://moesign.com/" target="_blank">MoeSign</a>

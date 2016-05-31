@@ -34,6 +34,9 @@ switch (SYSTEM_PAGE) {
 		elseif (isset($_GET['uninst'])) {
 			uninstallPlugin($_GET['uninst']);
 		}
+		elseif (isset($_GET['clean'])) {
+			uninstallPlugin($_GET['clean'],false);
+		}
 		elseif (isset($_GET['install'])) {
 			if(!empty($_REQUEST['ver'])){
 				msg ('该插件仅适用于 V'.$_REQUEST['ver'].' 及以上的版本，您的云签到版本低于插件所需最低版本，是否强制安装（强制安装可能造成云签到损坏）<br/><br/><a href="setting.php?mod=admin:plugins&install='.$_GET['install'].'">强制安装</a>　　<a href="setting.php?mod=admin:plugins">取消安装</a><br/>',false,true);
@@ -67,7 +70,7 @@ switch (SYSTEM_PAGE) {
 		if($file == 'WRONG'){
 			msg('错误 - 更新失败：<br/><br/>产品中心拒绝了下载<br/>请检查全局设置中的账号是否正确以及是否购买过此插件');
 		}
-		
+
 		$zipPath = UPDATE_CACHE.'update_plug_'.time().'.zip';
 		if(file_put_contents($zipPath, $file) === false){
 			DeleteFile(UPDATE_CACHE);
@@ -86,7 +89,7 @@ switch (SYSTEM_PAGE) {
 			DeleteFile(UPDATE_CACHE);
 			msg('错误 - 更新失败：<br/><br/>无法解压缩更新包');
 		}
-		
+
 		//覆盖文件
 		if(CopyAll($floderName,SYSTEM_ROOT.'/plugins/'.$_GET['upd']) !== true){
 			DeleteFile(UPDATE_CACHE);
@@ -97,7 +100,7 @@ switch (SYSTEM_PAGE) {
 		doAction('plugin_update_2');
 		msg('（1/2）已成功下载最新版本的 '.$plug['plugin']['name'].' 插件。请单击下一步，以完成更新<br/><br/><a href="setting.php?mod=admin:plugins&upd='.$_GET['upd'].'">>> 下一步</a>',false);
 		break;
-	
+
 	case 'admin:set':
 		global $m;
 		$sou = $_POST;
@@ -179,13 +182,13 @@ switch (SYSTEM_PAGE) {
 				setcookie('toolpw',$cookies);
 				Redirect('index.php?mod=admin:tools');
 			}
-		}	
+		}
 		if($_COOKIE['toolpw'] != $toolpw || empty($toolpw)){
 			Redirect('index.php?mod=admin:tools');
 		}
 		*/
 		switch (strip_tags($_GET['setting'])) {
-			
+
 		case 'optim':
 			global $m;
 			$rs=$m->query("SHOW TABLES FROM `".DB_NAME.'`');
@@ -193,7 +196,7 @@ switch (SYSTEM_PAGE) {
 				$m->query('OPTIMIZE TABLE  `'.DB_NAME.'`.`'.$row[0].'`');
 			}
 			break;
-		
+
 		case 'fixdoing':
 			option::set('cron_isdoing',0);
 			break;
@@ -348,7 +351,7 @@ switch (SYSTEM_PAGE) {
 				}
 				doAction('admin_users_cookie');
 				break;
-			
+
 			case 'clean':
 				foreach ($_POST['user'] as $value) {
 					CleanUser($value);
@@ -430,9 +433,9 @@ switch (SYSTEM_PAGE) {
 			if(stripos($_POST['file'],'do.php') !== false){
 				msg('<h4>请不要将do.php加入到云签的计划任务中来</h4>若需签到，请用云监控监控<br/>'.SYSTEM_URL.'do.php<br/>即可实现计划任务(cron)的效果<br/><br/>推荐云监控:<a href="http://www.aliyun.com/product/jiankong/" target="_blank">阿里云监控</a> 或 <a href="http://jk.cloud.360.cn/" target="_blank">360网站服务监控</a> 或 <a href="http://ce.baidu.com/" target="_blank">百度云观测</a><br/>如果你的服务器在国外且国内访问较慢，则推荐使用:<a href="http://www.mywebcron.com/" target="_blank">Free Web Cron Service </a>',SYSTEM_URL.'index.php?mod=admin:cron');
 			} else {
-				cron::set($_POST['name'], $_POST['file'], $_POST['no'], $_POST['status'], $_POST['freq'] ,$_POST['lastdo'], $_POST['log']);
+				cron::set($_POST['name'], $_POST['file'], $_POST['no'], $_POST['desc'], $_POST['freq'] ,$_POST['lastdo'], $_POST['log']);
 			}
-			
+
 		}
 		elseif (isset($_GET['run'])) {
 			$return = cron::run($_GET['file'], $_GET['run']);
@@ -489,7 +492,7 @@ switch (SYSTEM_PAGE) {
 
 			if (option::get('bduss_num') != '0' && ISVIP == false) {
 				$count = $m->once_fetch_array("SELECT COUNT(*) AS `c` FROM `".DB_NAME."`.`".DB_PREFIX."baiduid` WHERE `".DB_PREFIX."baiduid`.`uid` = ".UID);
-				if (($count['c'] + 1) > option::get('bduss_num')) msg('您当前绑定的账号数已达到管理员设置的上限<br/><br/>您当前已绑定 '.$count['c'].' 个账号，最多只能绑定 '.option::get('bduss_num').' 个账号'); 
+				if (($count['c'] + 1) > option::get('bduss_num')) msg('您当前绑定的账号数已达到管理员设置的上限<br/><br/>您当前已绑定 '.$count['c'].' 个账号，最多只能绑定 '.option::get('bduss_num').' 个账号');
 			}
 			// 去除双引号和bduss=
 			$bduss = str_replace('"', '', $_GET['bduss']);
@@ -507,7 +510,7 @@ switch (SYSTEM_PAGE) {
 			$del = (int) $_GET['del'];
 			doAction('baiduid_set_3');
 			$x=$m->once_fetch_array("SELECT * FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE  `id` = ".UID." LIMIT 1");
-			$m->query("DELETE FROM `".DB_NAME."`.`".DB_PREFIX."baiduid` WHERE `".DB_PREFIX."baiduid`.`uid` = ".UID." AND `".DB_PREFIX."baiduid`.`id` = " . $del);	
+			$m->query("DELETE FROM `".DB_NAME."`.`".DB_PREFIX."baiduid` WHERE `".DB_PREFIX."baiduid`.`uid` = ".UID." AND `".DB_PREFIX."baiduid`.`id` = " . $del);
 			$m->query('DELETE FROM `'.DB_NAME.'`.`'.DB_PREFIX.$x['t'].'` WHERE `'.DB_PREFIX.$x['t'].'`.`uid` = '.UID.' AND `'.DB_PREFIX.$x['t'].'`.`pid` = '.$del);
 		}
 		/*
@@ -561,7 +564,7 @@ switch (SYSTEM_PAGE) {
 			$max = $max['id'];
 			$min = $min['id'];
 			while($min < $max) {
-				$res = $m->fetch_array($m->query('SELECT * FROM `'.DB_NAME.'`.`'.DB_PREFIX.TABLE.'` WHERE `id` ='.$min.' Limit 1')); 
+				$res = $m->fetch_array($m->query('SELECT * FROM `'.DB_NAME.'`.`'.DB_PREFIX.TABLE.'` WHERE `id` ='.$min.' Limit 1'));
 				if($res['status'] != 0){
 					$m->query('UPDATE `'.DB_NAME.'`.`'.DB_PREFIX.TABLE.'` SET `latest` = 0,`status` = 0,`last_error` = NULL WHERE `id` ='.$min);
 					}
@@ -576,7 +579,7 @@ switch (SYSTEM_PAGE) {
 				$osq = $m->query("SELECT * FROM `".DB_NAME."`.`".DB_PREFIX.TABLE."` WHERE `uid` = ".UID." AND `tieba` = '{$v}';");
 				if($m->num_rows($osq) == 0) {
 					$table = $m->fetch_array($m->query('select * from `'.DB_NAME.'`.`'.DB_PREFIX.'users` where `id` = '.UID));
-					$tb_max = $m->fetch_row($m->query("SELECT COUNT(*) FROM `".DB_NAME."`.`".DB_PREFIX.$table['t']."` where `uid` = ".UID));	
+					$tb_max = $m->fetch_row($m->query("SELECT COUNT(*) FROM `".DB_NAME."`.`".DB_PREFIX.$table['t']."` where `uid` = ".UID));
 					if(ROLE == 'admin' || ROLE == 'vip'){
 						$m->query("INSERT INTO `".DB_NAME."`.`".DB_PREFIX.TABLE."` (`id`, `pid`, `uid`, `tieba`, `no`, `latest`) VALUES (NULL, {$pid} ,'".UID."', '{$v}', 0, 0);");
 					} else {
@@ -585,7 +588,7 @@ switch (SYSTEM_PAGE) {
 						} else {
 							msg('错误：您的贴吧数量超过限制，无法刷新！');
 						}
-					}																				
+					}
 				}
 			}
 			Redirect('index.php?mod=showtb&ok');

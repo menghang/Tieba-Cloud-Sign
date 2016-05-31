@@ -1,13 +1,12 @@
 <?php
-if (!defined('SYSTEM_ROOT')) { die('Insufficient Permissions'); } 
+if (!defined('SYSTEM_ROOT')) { die('Insufficient Permissions'); }
 ob_start();
 /**
  * 加载头部
  * @param string $title 页面标题
  */
 function loadhead($title = '') {
-    if(defined('SYSTEM_NO_UI'))
-        return;
+    if(defined('SYSTEM_NO_UI')) return;
 	$title = empty($title) ? strip_tags(SYSTEM_NAME) : $title . ' - ' . strip_tags(SYSTEM_NAME);
     doAction('top');
 	echo '<!DOCTYPE html><html><head>';
@@ -45,8 +44,7 @@ function loadhead($title = '') {
  */
 function loadfoot($copy = false) {
     global $i;
-    if(defined('SYSTEM_NO_UI'))
-        return;
+    if(defined('SYSTEM_NO_UI')) return;
 	$icp=option::get('icp');
 	if (!empty($icp)) {
 		echo ' | <a href="http://www.miitbeian.gov.cn/" target="_blank">'.$icp.'</a>';
@@ -78,7 +76,7 @@ function loadfoot($copy = false) {
         }
     }
     if($copy) {
-        echo '<br/><br/>'.SYSTEM_FN.' V'.SYSTEM_VER.' // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp; <a href="http://fyy.l19l.com/" target="_blank">FYY</a>';
+        echo '<br/><br/>'.SYSTEM_FN.' V'.SYSTEM_VER.' // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy.l19l.com/" target="_blank">FYY</a> &amp; <a href="https://moesign.com/" target="_blank">MoeSign</a>';
     }
 	echo '</div></div></div></div></body></html>';
 }
