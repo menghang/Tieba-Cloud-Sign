@@ -59,16 +59,16 @@ foreach($x as $key => $val) {
 		}
 	}
     if(isset($i['plugins']['info'][$val['plugin']['id']]['status'])){
-        $fortc .= '<br/>加载顺序：<input required type="number" style="width: 50%;" name="'.$val['plugin']['id'].'" value="'.$val['plugin']['order'].'">';
+        $fortc .= '<br/>加载顺序：<input required type="number" class="form-control input-sm" style="width:50%; display:inline" name="'.$val['plugin']['id'].'" value="'.$val['plugin']['order'].'">';
     }
 	if (in_array($val['plugin']['id'], $i['plugins']['all'])) {
 		if ($i['plugins']['info'][$val['plugin']['id']]['status'] == '1') {
 			$status = '<font color="green">已激活</font> | <a href="setting.php?mod=admin:plugins&dis='.$val['plugin']['id'].'">禁用插件</a><br/>';
-			if (($val['core']['setting'] && $val['view']['setting']) || (isset($val['plugin']['old']) && file_exists(SYSTEM_ROOT . '/plugins/' . $val['plugin']['id'] . '/' . $val['plugin']['id'] . '_setting.php'))) {
+			if (isset($val['core']) && ($val['core']['setting'] && $val['view']['setting']) || (isset($val['plugin']['old']) && file_exists(SYSTEM_ROOT . '/plugins/' . $val['plugin']['id'] . '/' . $val['plugin']['id'] . '_setting.php'))) {
 				$status .= '<a href="index.php?mod=admin:setplug&plug='.$val['plugin']['id'].'">打开插件设置</a>';
 				$action .= '<a href="index.php?mod=admin:setplug&plug='.$val['plugin']['id'].'" title="查看设置"><span class="glyphicon glyphicon-cog"></span></a> ';
 			}
-			if ($val['core']['show'] && $val['view']['show']) {
+			if (isset($val['core']) && $val['core']['show'] && $val['view']['show']) {
 				$action .= '<a href="index.php?plugin='.$val['plugin']['id'].'" title="查看页面"><span class="glyphicon glyphicon-eye-open"></span></a> ';
 			}
 		} else {
@@ -92,7 +92,7 @@ doAction('admin_plugins');
 	echo ' | 您已在全局设置中指定环境为引擎，卸载插件将不会删除插件文件';
 }
 ?>
-<br/><a href="javascript:;" data-toggle="modal" data-target="#InstallPlugin">上传安装插件</a> | <a href="http://s.stus8.com/index.php?mod=list" target="_blank">产品中心</a> | <a href="javascript:;" onclick="alert('请确保插件目录名和插件入口文件的文件名一致(扩展名除外)<br/>例如，插件目录名是 <i>wmzz_debug</i>，则插件入口文件的文件名应该是 <i>wmzz_debug.php</i><br/><br/>如果您是从Git上下载的插件包，请注意去掉文件夹名称-master之类的字符');" target="_blank">找不到上传的插件？</a>
+<br/><a href="javascript:;" data-toggle="modal" data-target="#InstallPlugin">上传安装插件</a> | <a href="http://git.oschina.net/kenvix/Tieba-Cloud-Sign/wikis/%E8%B4%B4%E5%90%A7%E4%BA%91%E7%AD%BE%E5%88%B0%E6%8F%92%E4%BB%B6%E5%BA%93" target="_blank">插件库</a> | <a href="javascript:;" onclick="alert('请确保插件目录名和插件入口文件的文件名一致(扩展名除外)<br/>例如，插件目录名是 <i>wmzz_debug</i>，则插件入口文件的文件名应该是 <i>wmzz_debug.php</i><br/><br/>如果您是从Git上下载的插件包，请注意去掉文件夹名称-master之类的字符');" target="_blank">找不到上传的插件？</a>
 </div>
 <form action="setting.php?mod=admin:plugins&xorder" method="post">
 <div class="table-responsive">
@@ -110,7 +110,7 @@ doAction('admin_plugins');
 </table>
 </div><input type="submit" class="btn btn-primary" value="提交更改">
 </form>
-<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy.l19l.com/" target="_blank">FYY</a> &amp; <a href="https://moesign.com/" target="_blank">MoeSign</a>
+<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a>  &amp; <a href="http://www.mokeyjay.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy1999.lofter.com/" target="_blank">FYY</a>
 
 <script type="text/javascript">
 	function c_upd(e,plug) {

@@ -136,10 +136,12 @@ class wmysql {
 		return $this->xquery($sql,$noerror = false);
 	}
 
-	/**
-	 * 从结果集中取得一行作为关联数组/数字索引数组
-	 *
-	 */
+    /**
+     * 从结果集中取得一行作为关联数组/数字索引数组
+     * @param mysqli_result $query 结果集
+     * @param int $type 可选MYSQL_ASSOC，MYSQL_NUM，MYSQL_BOTH
+     * @return array
+     */
 	public function fetch_array($query , $type = MYSQL_ASSOC) {
 		return mysql_fetch_array($query, $type);
 	}
@@ -220,4 +222,13 @@ class wmysql {
 	public function getQueryCount() {
 		return $this->queryCount;
 	}
+
+    /**
+     * 转义 SQL 语句中使用的字符串中的特殊字符，并考虑到连接的当前字符集
+     * @param string $sql
+     * @return string
+     */
+    public function escape_string($sql) {
+        return mysql_real_escape_string($sql, $this->conn);
+    }
 }

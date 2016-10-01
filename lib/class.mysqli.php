@@ -148,7 +148,9 @@ class wmysql {
 
 	/**
 	 * 从结果集中取得一行作为关联数组/数字索引数组
-	 *
+     * @param mysqli_result $query 结果集
+     * @param int $type 可选MYSQLI_ASSOC，MYSQLI_NUM，MYSQLI_BOTH
+     * @return array
 	 */
 	public function fetch_array(mysqli_result $query, $type = MYSQLI_ASSOC) {
 		return $query->fetch_array($type);
@@ -212,7 +214,7 @@ class wmysql {
 	}
 
 	/**
-	 * Get number of affected rows in previous MySQL operation
+	 * 获取上次操作受影响行数
 	 */
 	public function affected_rows() {
 		return $this->conn->affected_rows;
@@ -233,8 +235,10 @@ class wmysql {
 	}
 
     /**
-	 *  Escapes special characters
-	 */
+     * 转义 SQL 语句中使用的字符串中的特殊字符，并考虑到连接的当前字符集
+     * @param string $sql
+     * @return string
+     */
 	public function escape_string($sql) {
 		return $this->conn->real_escape_string($sql);
 	}

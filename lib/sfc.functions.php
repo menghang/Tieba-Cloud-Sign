@@ -81,10 +81,8 @@ function textMiddle($text, $left, $right) {
  * @return string|bool 百度用户名，失败返回FALSE
  */
 function getBaiduId($bduss){
-	global $m;
-	$header[] = 'Content-Type:application/x-www-form-urlencoded; charset=UTF-8';
-	$header[] = 'Cookie: BDUSS='.$bduss;
-	$c = new wcurl('http://wapp.baidu.com/',$header);
+	$c = new wcurl('http://wapp.baidu.com/');
+    $c->addCookie(array('BDUSS' => $bduss,'BAIDUID' => strtoupper(md5(time()))));
 	$data = $c->get();
 	$c->close();
 	return urldecode(textMiddle($data,'i?un=','">'));
@@ -218,7 +216,7 @@ function getfreetable() {
  */
 function CleanUser($id) {
 	global $m;
-	$x=$m->once_fetch_array("SELECT * FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE  `id` = {$id} LIMIT 1");
+	$x=$m->once_fetch_array("SELECT `t` FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE  `id` = {$id} LIMIT 1");
 	$m->query('DELETE FROM `'.DB_NAME.'`.`'.DB_PREFIX.$x['t'].'` WHERE `'.DB_PREFIX.$x['t'].'`.`uid` = '.$id);
 }
 
@@ -231,7 +229,23 @@ function CleanUser($id) {
 function DeleteUser($id) {
 	global $m;
 	CleanUser($id);
+    option::udel($id);
 	$m->query('DELETE FROM `'.DB_NAME.'`.`'.DB_PREFIX.'users` WHERE `'.DB_PREFIX.'users`.`id` = '.$id);
+}
+
+/**
+ * 判断`操作后`剩余的admin数量，如为0则报错
+ * `操作`通常指 删除 或 调整用户组
+ * 也就是判断`操作` $id_list 后剩余的admin数量
+ * @param array $id_list
+ */
+function MustAdminWarning($id_list)
+{
+    global $m;
+    $id_list = implode(',', $id_list); // 收集欲处理的用户id
+    $q = "SELECT COUNT(*) as num FROM `".DB_NAME."`.`".DB_PREFIX."users` WHERE `role` = 'admin' AND `id` NOT IN ({$id_list})";
+    $q = $m->once_fetch_array($q);
+    if($q['num'] == 0) msg('必须保留至少一位管理员！');
 }
 
 
@@ -515,6 +529,8 @@ function addAction($hook, $actionFunc) {
 	$i['plugins']['hook'][$hook][] = $actionFunc;
 	return true;
 }
+
+
 
 /**
  * 执行挂在钩子上的函数,支持多参数 eg:doAction('post_comment', $author, $email, $url, $comment);
@@ -952,4 +968,20 @@ function get_mime($ext) {
         'zip'     => 'application/zip'
     );
     return isset($mime_types[$ext]) ? $mime_types[$ext] : 'application/octet-stream';
+}
+
+
+/**
+ * 防CSRF验证
+ * @param bool $strict 严格模式。拒绝空referer
+ */
+function csrf($strict = true) {
+	if(defined('ANTI_CSRF') && !ANTI_CSRF) return;
+	global $i;
+	if(empty($i['opt']['csrf'])) {
+		if(empty($_SERVER['HTTP_REFERER']) && $strict) redirect('index.php');
+		$p = parse_url($_SERVER['HTTP_REFERER']);
+		if(!$p || empty($p['host'])) msg('CSRF防御：无效请求');
+		if($p['host'] != $_SERVER['SERVER_NAME']) msg('CSRF防御：错误的请求来源');
+	}
 }

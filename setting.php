@@ -4,7 +4,7 @@
  */
 
 require dirname(__FILE__).'/init.php';
-
+csrf();
 if (ROLE != 'user' && ROLE != 'admin' && ROLE != 'vip') {
     msg('权限不足');
 }
@@ -158,11 +158,11 @@ switch (SYSTEM_PAGE) {
 				@option::set('mail_smtppw',$sou['mail_smtppw']);
 			}
 			@option::set('dev',$sou['dev']);
-			@option::set('dev',$sou['dev']);
 			@option::set('cron_pw',$sou['cron_pw']);
 			@option::set('cron_asyn',$sou['cron_asyn']);
 			@option::set('sign_multith',$sou['sign_multith']);
 			@option::set('cktime',$sou['cktime']);
+			@option::set('csrf',$sou['csrf']);
 			@option::set('isapp',$sou['isapp']);
 		}
 		doAction('admin_set_save');
@@ -359,7 +359,21 @@ switch (SYSTEM_PAGE) {
 				doAction('admin_users_clean');
 				break;
 
+            case 'control':
+                $uid = !empty($_POST['user'][0]) ? $_POST['user'][0] : msg('无效用户ID');
+                if($uid == $i['user']['uid']) msg('请勿控制自己');
+                $osq = $m->once_fetch_array("SELECT `pw` FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$uid}' LIMIT 1");
+                if(empty($osq['pw'])) msg('用户不存在');
+                doAction('admin_users_control');
+                setcookie("uid", $uid, time() + 999999);
+                setcookie("pwd",substr(sha1(EncodePwd($osq['pw'])) , 4 , 32), time() + 999999);
+                setcookie("con_uid", UID);
+                setcookie("con_pwd", $_COOKIE['pwd']);
+                redirect('index.php');
+                break;
+
 			case 'delete':
+                MustAdminWarning($_POST['user']);
 				foreach ($_POST['user'] as $value) {
 					DeleteUser($value);
 				}
@@ -367,20 +381,17 @@ switch (SYSTEM_PAGE) {
 				break;
 
 			case 'crole':
+			    // 判断用户组字符串是否合法
+                $role = $_POST['crolev'];
+                if(!in_array($role, array('user', 'admin', 'vip', 'banned'))) msg('无效的用户组！');
+                // 如果准备将用户组设为admin以外时，先检测是否还有其他admin可用
+                // 避免出现所有用户都被设为非admin的问题
+                if($role != 'admin'){
+                    MustAdminWarning($_POST['user']);
+                }
+
                 foreach ($_POST['user'] as $value) {
-                    if ($_POST['crolev'] == 'user') {
-                        $role = 'user';
-                    }
-                    elseif ($_POST['crolev'] == 'admin') {
-                        $role = 'admin';
-                    }
-                    elseif ($_POST['crolev'] == 'vip') {
-                        $role = 'vip';
-                    }
-                    elseif ($_POST['crolev'] == 'banned') {
-                        $role = 'banned';
-                    }
-                    doAction('admin_users_crole_process', $value, $_POST['crolev']);
+                    doAction('admin_users_crole_process', $value, $role);
                     $m->query("UPDATE `".DB_NAME."`.`".DB_PREFIX."users` SET `role` = '{$role}' WHERE `".DB_PREFIX."users`.`id` = {$value}");
                 }
 				doAction('admin_users_crole');
@@ -400,13 +411,13 @@ switch (SYSTEM_PAGE) {
 				$role = isset($_POST['role']) ? strip_tags($_POST['role']) : 'user';
 
 				if (empty($name) || empty($mail) || empty($pw)) {
-					msg('添加用户失败：请正确填写账户、密码或邮箱');
+					msg('添加用户失败：请正确填写用户名、密码或邮箱');
 				}
-				$x=$m->once_fetch_array("SELECT COUNT(*) AS total FROM `".DB_NAME."`.`".DB_PREFIX."users` WHERE name='{$name}'");
+				$x=$m->once_fetch_array("SELECT COUNT(*) AS total FROM `".DB_NAME."`.`".DB_PREFIX."users` WHERE name='{$name}' OR `email`='{$mail}'");
 				if ($x['total'] > 0) {
-					msg('添加用户失败：用户名已经存在');
+					msg('添加用户失败：用户名或邮箱已经存在');
 				}
-				$m->query('INSERT INTO `'.DB_NAME.'`.`'.DB_PREFIX.'users` (`id`, `name`, `pw`, `email`, `role`, `t`) VALUES (NULL, \''.$name.'\', \''.EncodePwd($pw).'\', \''.$mail.'\', \''.$role.'\', \''.getfreetable().'\');');
+				$m->query('INSERT INTO `'.DB_NAME.'`.`'.DB_PREFIX.'users` (`name`, `pw`, `email`, `role`, `t`) VALUES (\''.$name.'\', \''.EncodePwd($pw).'\', \''.$mail.'\', \''.$role.'\', \''.getfreetable().'\');');
 				doAction('admin_users_add');
 				Redirect('index.php?mod=admin:users&ok');
 				break;
@@ -448,27 +459,6 @@ switch (SYSTEM_PAGE) {
 		}
 		doAction('cron_setting_2');
 		Redirect('index.php?mod=admin:cron&ok');
-		break;
-
-	case 'admin:update:back':
-		if (isset($_GET['del'])) {
-			if (file_exists(SYSTEM_ROOT . '/setup/update_backup/' . $_GET['del'])) {
-				DeleteFile(SYSTEM_ROOT . '/setup/update_backup/' . $_GET['del']);
-			}
-			Redirect('index.php?mod=admin:update:back&ok');
-		}
-
-		if (isset($_GET['dir'])) {
-			if (file_exists(SYSTEM_ROOT . '/setup/update_backup/' . $_GET['dir'] . '/__backup.ini')) {
-				if(CopyAll(SYSTEM_ROOT . '/setup/update_backup/' . $_GET['dir'] , SYSTEM_ROOT) !== true) {
-					msg('版本回滚失败');
-				}
-				unlink(SYSTEM_ROOT . '/__backup.ini');
-				msg('版本回滚成功','index.php');
-			} else {
-				msg('版本回滚失败：该备份不存在或不正确');
-			}
-		}
 		break;
 
 	case 'admin:create_lock':
@@ -553,11 +543,6 @@ switch (SYSTEM_PAGE) {
 			CleanUser(UID);
 			Redirect('index.php?mod=showtb');
 		}
-		elseif (isset($_GET['del'])) {
-			$id = (int) sqladds($_REQUEST['id']);
-			$m->query('DELETE FROM  `'.DB_NAME.'`.`'.DB_PREFIX.TABLE.'` WHERE `id` ='.$id);
-			Redirect('index.php?mod=showtb&ok');
-			}
 		elseif (isset($_GET['reset'])) {
 			$max = $m->fetch_array($m->query("select max(id) as id from `".DB_NAME."`.`".DB_PREFIX.TABLE."` where `uid`=".UID));
 			$min = $m->fetch_array($m->query("select min(id) as id from `".DB_NAME."`.`".DB_PREFIX.TABLE."` where `uid`=".UID));
@@ -596,50 +581,51 @@ switch (SYSTEM_PAGE) {
 		doAction('showtb_set');
 		break;
 
-		case 'set':
-			// 获取头像的url
-			if($i['post']['face_img'] == 1 && $i['post']['face_baiduid'] != ''){
-				$c = new wcurl('http://www.baidu.com/p/'.option::uget("face_baiduid"));
-				$data = $c->get();
-				$c->close();
-				$i['post']['face_url'] = stripslashes(textMiddle($data,'<img class=portrait-img src=\x22','\x22>'));
-			}
-			/*
-			受信任的设置项，如果插件要使用系统的API去储存设置，必须通过set_save1或set_save2挂载点挂载设置名
-			具体挂载方法为：
-			global $PostArray;
-			$PostArray[] = '设置名';
-			为了兼容旧版本，可以global以后检查一下是不是空变量，为空则为旧版本
-			*/
-			$PostArray = array(
-				'face_img',
-				'face_baiduid',
-				'face_url'
-			);
-			doAction('set_save1');
-			//更改邮箱
-			if($_POST['mail'] != $i['user']['email'] && !empty($_POST['mail'])){
-				if (checkMail($_POST['mail'])) {
-					$mail = sqladds($_POST['mail']);
-					$z=$m->once_fetch_array("SELECT COUNT(*) AS total FROM `".DB_NAME."`.`".DB_PREFIX."users` WHERE email='{$mail}'");
-					if ($z['total'] > 0) {
-						msg('修改失败：邮箱已经存在');
-					}
-					$m->query("UPDATE `".DB_PREFIX."users` SET `email` = '{$mail}' WHERE `id` = '".UID."';");
-				} else {
-					msg('邮箱格式有误，请检查');
-				}
-			}
-			$set = array();
-			foreach ($PostArray as $value) {
-				if (!isset($i['post'][$value])) {
-					$i['post'][$value] = '';
-				}
-				@option::uset($value , $i['post'][$value]);
-			}
-			doAction('set_save2');
-			Redirect('index.php?mod=set&ok');
-			break;
+    case 'set':
+        // 获取头像的url
+        if($i['post']['face_img'] == 1 && $i['post']['face_baiduid'] != ''){
+            $c = new wcurl('http://www.baidu.com/p/'.option::uget("face_baiduid"));
+            $data = $c->get();
+            $c->close();
+            $i['post']['face_url'] = stripslashes(textMiddle($data,'<img class=portrait-img src=\x22','\x22>'));
+            if(empty(trim($i['post']['face_url']))) msg('获取贴吧头像失败，可能是网络问题，请重试');
+        }
+        /*
+        受信任的设置项，如果插件要使用系统的API去储存设置，必须通过set_save1或set_save2挂载点挂载设置名
+        具体挂载方法为：
+        global $PostArray;
+        $PostArray[] = '设置名';
+        为了兼容旧版本，可以global以后检查一下是不是空变量，为空则为旧版本
+        */
+        $PostArray = array(
+            'face_img',
+            'face_baiduid',
+            'face_url'
+        );
+        doAction('set_save1');
+        //更改邮箱
+        if($_POST['mail'] != $i['user']['email'] && !empty($_POST['mail'])){
+            if (checkMail($_POST['mail'])) {
+                $mail = sqladds($_POST['mail']);
+                $z=$m->once_fetch_array("SELECT COUNT(*) AS total FROM `".DB_NAME."`.`".DB_PREFIX."users` WHERE email='{$mail}'");
+                if ($z['total'] > 0) {
+                    msg('修改失败：邮箱已经存在');
+                }
+                $m->query("UPDATE `".DB_PREFIX."users` SET `email` = '{$mail}' WHERE `id` = '".UID."';");
+            } else {
+                msg('邮箱格式有误，请检查');
+            }
+        }
+        $set = array();
+        foreach ($PostArray as $value) {
+            if (!isset($i['post'][$value])) {
+                $i['post'][$value] = '';
+            }
+            @option::uset($value , $i['post'][$value]);
+        }
+        doAction('set_save2');
+        Redirect('index.php?mod=set&ok');
+        break;
 
 	case 'admin:testmail':
 		global $i;

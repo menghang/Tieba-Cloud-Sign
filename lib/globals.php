@@ -2,11 +2,35 @@
 /**
  * 全局用户控制
  */
+ 
+doAction('globals');
 
 if (isset($_COOKIE['uid']) && isset($_COOKIE['pwd'])) {
+    if(!empty($_COOKIE['con_pwd']) && !empty($_COOKIE['con_uid'])) {
+        $con_uid = isset($_COOKIE['uid']) ? sqladds($_COOKIE['con_uid']) : '';
+        $con_pw  = isset($_COOKIE['pwd']) ? sqladds($_COOKIE['con_pwd']) : '';
+        $con_p   = $m->once_fetch_array("SELECT * FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$con_uid}' LIMIT 1");
+        if(empty($con_p['id']) || $con_pw != substr(sha1(EncodePwd($con_p['pw'])) , 4 , 32)) {
+            setcookie("con_uid",'', time() - 3600);
+            setcookie("con_pwd",'', time() - 3600);
+        } else {
+            if(SYSTEM_PAGE == 'usercontrolback') {
+                setcookie("uid",$con_uid, time() + 999999);
+                setcookie("pwd",$con_pw, time() + 999999);
+                setcookie("con_uid",'', time() - 3600);
+                setcookie("con_pwd",'', time() - 3600);
+                redirect('index.php');
+            } else {
+                define('CON_UID', $con_p['id']);
+                define('CON_NAME', $con_p['name']);
+                define('CON_EMAIL', $con_p['email']);
+                define('CON_TABLE', $con_p['t']);
+            }
+        }
+    }
     $uid = isset($_COOKIE['uid']) ? sqladds($_COOKIE['uid']) : '';
     $pw = isset($_COOKIE['pwd']) ? sqladds($_COOKIE['pwd']) : '';
-	$osq = $m->query("SELECT * FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$uid}' LIMIT 1");
+    $osq = $m->query("SELECT * FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$uid}' LIMIT 1");
     if($m->num_rows($osq) == 0) {
         setcookie("uid",'', time() - 3600);
         setcookie("pwd",'', time() - 3600);
@@ -180,6 +204,7 @@ elseif (isset($_GET['pub_plugin'])) {
 	define('SYSTEM_READY_LOAD_PUBPLUGIN', true);
 }
 elseif (SYSTEM_PAGE == 'admin:logout') {
+	csrf();
 	doAction('logout');
 	setcookie("uid",'', time() - 3600);
 	setcookie("toolpw",'', time() - 3600);

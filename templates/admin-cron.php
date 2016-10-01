@@ -33,7 +33,7 @@ foreach ($i['cron'] as $cs) {
 		$status .= '<script type="text/javascript">var system_cron_log = "'.addslashes($cs['log']).'"</script>';
 		$status .= '<br/><a href="javascript:;" onclick="alert(system_cron_log);">点击查看此任务的日志</a>';
 	}
-	$status .= '<br/>运行顺序：<input required style="width:30%" type="number" name="order['.$cs['name'].']" value="'.$cs['orde'].'">';
+	$status .= '<br/>运行顺序：<input required class="form-control input-sm" style="width:30%; display:inline" type="number" name="order['.$cs['name'].']" value="'.$cs['orde'].'">';
 	$cron .= '<input type="hidden" value="'.$cs['name'].'" name="ids[]"><tr><td style="width:30%"><b>'. $cs['name'] . '</b><br/>'.$cs['file'].'<br/>'. str_replace("\n", '<br/>', $cs['desc']) .'</td><td style="width:30%">'.$freq.'<br/>上次执行：'.$lastdo.'</td><td style="width:40%">'.$status.'</td></tr>';
 }
 
@@ -62,4 +62,4 @@ $crount = $m->once_fetch_array("SELECT COUNT(*) AS ffffff FROM `".DB_NAME."`.`".
 <input type="submit" class="btn btn-primary" value="提交更改">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-info" onclick="location = 'index.php?mod=admin:cron&add'">添加计划任务</button>
 </form>
 <br/>
-<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a> @ <a href="http://www.stus8.com" target="_blank">StusGame GROUP</a> &amp; <a href="http://www.longtings.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy.l19l.com/" target="_blank">FYY</a> &amp; <a href="https://moesign.com/" target="_blank">MoeSign</a>
+<br/><br/><?php echo SYSTEM_FN ?> V<?php echo SYSTEM_VER  . ' ' . SYSTEM_VER_NOTE ?> // 作者: <a href="http://zhizhe8.net" target="_blank">Kenvix</a>  &amp; <a href="http://www.mokeyjay.com/" target="_blank">mokeyjay</a> &amp;  <a href="http://fyy1999.lofter.com/" target="_blank">FYY</a>
