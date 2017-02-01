@@ -1,9 +1,8 @@
-<?php if (!defined('SYSTEM_ROOT')) { die('Insufficient Permissions'); }
-//特别警告：请勿使用记事本编辑！！！如果你正在使用记事本并且还没有保存，赶紧关掉！！！
-//如果你已经用记事本保存了，请立即下载最新版的云签到包解压并覆盖本文件
+<?php 
 
-//BAE/SAE/JAE的数据库地址，用户名，密码请参考相关文档
+//特别警告：禁止使用记事本编辑！
 
+////////////////////////////以下选项只需在使用MySQL时填写////////////////////////////
 //MySQL 数据库地址，普通主机一般为localhost
 define('DB_HOST',getenv('OPENSHIFT_MYSQL_DB_HOST'));
 //MySQL 数据库用户名
@@ -12,7 +11,16 @@ define('DB_USER',getenv('OPENSHIFT_MYSQL_DB_USERNAME'));
 define('DB_PASSWD',getenv('OPENSHIFT_MYSQL_DB_PASSWORD'));
 //MySQL 数据库名称(存放百度贴吧云签到的)
 define('DB_NAME',getenv('OPENSHIFT_APP_NAME'));
-//MySQL 数据库前缀，建议保持默认
+
+////////////////////////////以下选项使用任何数据库都需填写////////////////////////////
+//数据库前缀，建议保持默认
 define('DB_PREFIX','tc_');
-//加密用盐，请乱打，留空为不使用盐
+
+///////////////////////////////////////其他设置///////////////////////////////////////
+//停用CSRF防御
+//说明在 http://git.oschina.net/kenvix/Tieba-Cloud-Sign/wikis/关于云签到CSRF防御
+define('ANTI_CSRF',true);
+
+//加密用盐，留空为不使用
 define('SYSTEM_SALT','');
+

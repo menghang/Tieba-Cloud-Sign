@@ -42,16 +42,8 @@ Pull Request和Issue请提交到 Git@OSC 代码库，在其他代码库提交可
 @Ver4 [i@v4.hk]     
 @kirainmoe [kotori@wo.cn]     
 @VFleaKing [liuhaotian0520@163.com]     
-@superxzr [a457418121@gmail.com]
-#由StusGame官方人员运营的签到平台
-[简云签到联盟](https://tbsign.cn)
-##许可协议与商业版本等
-###许可协议
-请访问程序根目录下的 license.html 阅读许可协议
-###商业版本
-若要购买商业版本（￥270），请发送邮件至：kenvix@qq.com     
-购买商业版本后可以：修改版权，获取专属插件，后续更新，提供技术支持等     
-老商业用户请联系@Kenvix [kenvix@qq.com]获取福利插件库地址
+@superxzr [a457418121@gmail.com]         
+没有商业版！没有商业版！没有商业版！   
 ###耻辱柱
 这里列出的是**一小部分**违反协议者的名单
 #####1.@shirakun -- 发布去版权版本
@@ -60,6 +52,9 @@ Pull Request和Issue请提交到 Git@OSC 代码库，在其他代码库提交可
 [http://ccgv.me/](http://ccgv.me/)  [http://ccgv.party/](http://ccgv.party/)
 #####3.多星宇 -- 发布修改版权的版本
 [http://www.asp300.com/SoftView/11/SoftView_57242.html](http://www.asp300.com/SoftView/11/SoftView_57242.html)
+#####4.贴吧:国王zhang -- 去版权+辱骂作者+经提醒之后死性不改和删除提醒
+[http://52king.cn/tieba](http://52king.cn/tieba)
+[http://tieba.baidu.com/p/4822692349](http://tieba.baidu.com/p/4822692349)
 ###须知
 贴吧云签到V5.0可能成为最后的版本     
 商业版将继续支持，并提供漏洞修补程序以及接口更改

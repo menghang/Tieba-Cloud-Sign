@@ -139,17 +139,10 @@ switch (SYSTEM_PAGE) {
 			@option::set('footer',$sou['footer']);
 			@option::set('ann',$sou['ann']);
 			@option::set('enable_reg',$sou['enable_reg']);
-            // 未加载GD库则无法开启验证码
-            if($sou['captcha'] && !function_exists('imagecreatetruecolor')){
-                @option::set('captcha', 0);
-                msg('当前PHP环境没有加载GD库，无法开启 注册/登录验证码 功能');
-            }
-            @option::set('captcha', $sou['captcha']);
-
+            isset($sou['captcha']) and @option::set('captcha', $sou['captcha']);
 			@option::set('yr_reg',$sou['yr_reg']);
 			@option::set('stop_reg',$sou['stop_reg']);
 			@option::set('icp',$sou['icp']);
-			@option::set('trigger',$sou['trigger']);
 			@option::set('bbs_us',$sou['bbs_us']);
 			@option::set('bbs_pw',$sou['bbs_pw']);
 			@option::set('mail_mode',$sou['mail_mode']);
@@ -160,16 +153,12 @@ switch (SYSTEM_PAGE) {
 			@option::set('mail_auth',$sou['mail_auth']);
 			@option::set('mail_ssl',$sou['mail_ssl']);
 			@option::set('mail_smtpname',$sou['mail_smtpname']);
-			if (isset($sou['mail_smtppw'])) {
-				@option::set('mail_smtppw',$sou['mail_smtppw']);
-			}
+			isset($sou['mail_smtppw']) and @option::set('mail_smtppw',$sou['mail_smtppw']);
 			@option::set('dev',$sou['dev']);
 			@option::set('cron_pw',$sou['cron_pw']);
-			@option::set('cron_asyn',$sou['cron_asyn']);
+			isset($sou['cron_asyn']) and @option::set('cron_asyn',$sou['cron_asyn']);
 			@option::set('sign_multith',$sou['sign_multith']);
 			@option::set('cktime',$sou['cktime']);
-			@option::set('csrf',$sou['csrf']);
-			@option::set('isapp',$sou['isapp']);
 		}
 		doAction('admin_set_save');
 		Redirect('index.php?mod=admin:set:'. $_GET['type'].'&ok');
@@ -332,7 +321,11 @@ switch (SYSTEM_PAGE) {
 			$rdc = explode('/', $z->getNameIndex(0), 2);
 			$rd  = $rdc[0];
 			if($z->getFromName($rd . '/' . $rd . '.php') === false) {
-				msg('插件安装失败：插件包不合法，请确认此插件为'.SYSTEM_FN.'插件');
+				if($z->getFromName($rd . '/' . str_ireplace(array('-master','master-'),'',$rd) . '.php')) {
+                    $z->renameIndex(0, str_ireplace(array('-master','master-'),'',$rd));
+                } else {
+                    msg('插件安装失败：插件包不合法，请确认此插件为'.SYSTEM_FN.'插件');
+                }
 			}
 			if(!$z->extractTo(SYSTEM_ROOT . '/plugins')) {
 				msg('插件安装失败：解压缩失败');
@@ -350,6 +343,17 @@ switch (SYSTEM_PAGE) {
 		break;
 
 	case 'admin:users':
+		if(!empty($_GET['control'])){
+            $osq = $m->once_fetch_array("SELECT `role`,`pw` FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$_GET['control']}' LIMIT 1");
+            empty($osq['pw']) and msg('用户不存在');
+			$osq['role'] == 'admin' and msg('无法控制管理员');
+            doAction('admin_users_control');
+            setcookie("uid", $_GET['control'], time() + 999999);
+            setcookie("pwd",substr(sha1(EncodePwd($osq['pw'])) , 4 , 32), time() + 999999);
+            setcookie("con_uid", UID);
+            setcookie("con_pwd", $_COOKIE['pwd']);
+            redirect('index.php');
+		}
 		switch (strip_tags($_POST['do'])) {
 			case 'cookie':
 				foreach ($_POST['user'] as $value) {
@@ -364,19 +368,6 @@ switch (SYSTEM_PAGE) {
 				}
 				doAction('admin_users_clean');
 				break;
-
-            case 'control':
-                $uid = !empty($_POST['user'][0]) ? $_POST['user'][0] : msg('无效用户ID');
-                if($uid == $i['user']['uid']) msg('请勿控制自己');
-                $osq = $m->once_fetch_array("SELECT `pw` FROM  `".DB_NAME."`.`".DB_PREFIX."users` WHERE `id` = '{$uid}' LIMIT 1");
-                if(empty($osq['pw'])) msg('用户不存在');
-                doAction('admin_users_control');
-                setcookie("uid", $uid, time() + 999999);
-                setcookie("pwd",substr(sha1(EncodePwd($osq['pw'])) , 4 , 32), time() + 999999);
-                setcookie("con_uid", UID);
-                setcookie("con_pwd", $_COOKIE['pwd']);
-                redirect('index.php');
-                break;
 
 			case 'delete':
                 MustAdminWarning($_POST['user']);
@@ -543,7 +534,7 @@ switch (SYSTEM_PAGE) {
 		}
 		elseif (isset($_GET['ref'])) {
 			$r = misc::scanTiebaByUser();
-			Redirect('index.php?mod=showtb');
+            echo 1;
 		}
 		elseif (isset($_GET['clean'])) {
 			CleanUser(UID);
@@ -640,22 +631,6 @@ switch (SYSTEM_PAGE) {
 			Redirect('index.php?mod=admin:set&mailtestok');
 		} else {
 			msg('邮件发送失败，发件日志：<br/>'.$x);
-		}
-		break;
-
-	case 'admin:testbbs':
-		global $i;
-		$ch_url = SUPPORT_URL.'getplug.php?m=check&user='.option::get('bbs_us').'&pw='.option::get('bbs_pw');
-		$c = new wcurl($ch_url);
-		$x = $c->exec();
-		$c->close();
-		if($x == 'RIGHT') {
-			Redirect('index.php?mod=admin:set&bbstestok');
-		} else {
-			if(empty($x)){
-				$x = '错误 - 与产品中心连接失败';
-			}
-			msg('错误 - '.$x);
 		}
 		break;
 }

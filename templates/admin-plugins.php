@@ -58,24 +58,23 @@ foreach($x as $key => $val) {
     }
 	if (in_array($val['plugin']['id'], $i['plugins']['all'])) {
 		if ($i['plugins']['info'][$val['plugin']['id']]['status'] == '1') {
-			$status = '<font color="green">已激活</font> | <a href="setting.php?mod=admin:plugins&dis='.$val['plugin']['id'].'">禁用插件</a><br/>';
+			$status = '<font color="green">已激活</font> | <a href="setting.php?mod=admin:plugins&dis='.$val['plugin']['id'].'">禁用插件</a>';
 			if (isset($val['core']) && ($val['core']['setting'] && $val['view']['setting']) || (isset($val['plugin']['old']) && file_exists(SYSTEM_ROOT . '/plugins/' . $val['plugin']['id'] . '/' . $val['plugin']['id'] . '_setting.php'))) {
-				$status .= '<a href="index.php?mod=admin:setplug&plug='.$val['plugin']['id'].'">打开插件设置</a>';
-				$action .= '<a href="index.php?mod=admin:setplug&plug='.$val['plugin']['id'].'" title="查看设置"><span class="glyphicon glyphicon-cog"></span></a> ';
+				$action .= '<a href="index.php?mod=admin:setplug&plug='.$val['plugin']['id'].'" title="查看设置"><span class="glyphicon glyphicon-cog"></span><span style="padding:0 3px">设置</span></a> ';
 			}
 			if (isset($val['core']) && $val['core']['show'] && $val['view']['show']) {
-				$action .= '<a href="index.php?plugin='.$val['plugin']['id'].'" title="查看页面"><span class="glyphicon glyphicon-eye-open"></span></a> ';
+				$action .= '<a href="index.php?plugin='.$val['plugin']['id'].'" title="查看页面"><span class="glyphicon glyphicon-eye-open"></span><span style="padding:0 3px">页面</span></a> ';
 			}
 		} else {
-			$status = '<font color="black">已禁用</font> | <a href="setting.php?mod=admin:plugins&act='.$val['plugin']['id'].'">激活插件</a><br/>';
+			$status = '<font color="black">已禁用</font> | <a href="setting.php?mod=admin:plugins&act='.$val['plugin']['id'].'">激活插件</a>';
 		}
-		$action .= '<a onclick="return confirm(\'你想要清除此插件的数据吗？\\n'.$val['plugin']['name'].' V'.$val['plugin']['version'].'\');" href="setting.php?mod=admin:plugins&clean='.$val['plugin']['id'].'" style="color:#FF6A00;" title="清除数据"><span class="glyphicon glyphicon-remove"></span></a> ';
+		$action .= '<br/><a onclick="return confirm(\'你想要清除此插件的数据吗？文件会得到保留。\\n'.$val['plugin']['name'].' V'.$val['plugin']['version'].'\');" href="setting.php?mod=admin:plugins&clean='.$val['plugin']['id'].'" style="color:#FF6A00;" title="清除数据"><span class="glyphicon glyphicon-remove"></span><span style="padding:0 3px">重置</span></a> ';
 	} else {
-		$status = '<font color="#977C00">未安装</font> | <a href="setting.php?mod=admin:plugins&install='.$val['plugin']['id'].$for.'">安装插件</a><br/>';
+		$status = '<font color="#977C00">未安装</font> | <a href="setting.php?mod=admin:plugins&install='.$val['plugin']['id'].$for.'">安装插件</a>';
 	}
 
 	$plugins .= '<tr><td>'.$pluginfo.'</td><td>'.$authinfo.'<br/>'.$val['plugin']['id'].$fortc.'<td>'.$status.'<br/>';
-	$plugins .= $action.'<a onclick="return confirm(\'你想要要卸载此插件吗？\\n'.$val['plugin']['name'].' V'.$val['plugin']['version'].'\');" href="setting.php?mod=admin:plugins&uninst='.$val['plugin']['id'].'" style="color:red;" title="卸载"><span class="glyphicon glyphicon-trash"></span></a></td>';
+	$plugins .= $action.'<a onclick="return confirm(\'你想要要卸载此插件吗？这将删除相关文件。\\n'.$val['plugin']['name'].' V'.$val['plugin']['version'].'\');" href="setting.php?mod=admin:plugins&uninst='.$val['plugin']['id'].'" style="color:red;" title="卸载插件"><span class="glyphicon glyphicon-trash"></span><span style="padding:0 3px">卸载</span></a></td> ';
     $plugins .= '</tr>';
 }
 
@@ -83,10 +82,6 @@ doAction('admin_plugins');
 ?>
 <div class="alert alert-info" id="tb_num">当前有 <?php echo count($i['plugins']['all']); ?> 个已安装的插件，<?php echo count($i['plugins']['actived']) ?> 个已激活的插件，总共有 <?php echo count($x) ?> 个插件
 <br/>插件手工安装方法：直接解包插件并上传到 /plugins/ 即可
-<?php if (option::get('isapp')) {
-	echo ' | 您已在全局设置中指定环境为引擎，卸载插件将不会删除插件文件';
-}
-?>
 <br/><a href="javascript:;" data-toggle="modal" data-target="#InstallPlugin">上传安装插件</a> | <a href="http://git.oschina.net/kenvix/Tieba-Cloud-Sign/wikis/%E8%B4%B4%E5%90%A7%E4%BA%91%E7%AD%BE%E5%88%B0%E6%8F%92%E4%BB%B6%E5%BA%93" target="_blank">插件库</a> | <a href="javascript:;" onclick="alert('请确保插件目录名和插件入口文件的文件名一致(扩展名除外)<br/>例如，插件目录名是 <i>wmzz_debug</i>，则插件入口文件的文件名应该是 <i>wmzz_debug.php</i><br/><br/>如果您是从Git上下载的插件包，请注意去掉文件夹名称-master之类的字符');" target="_blank">找不到上传的插件？</a>
 </div>
 <form action="setting.php?mod=admin:plugins&xorder" method="post">
