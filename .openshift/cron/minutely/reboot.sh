@@ -4,7 +4,7 @@ export TZ="Asia/Shanghai"
 
 # 每天 00:10 00:20 12:00 各重启一次防止计划任务失败
 hour="`date +%H%M`"
-if [ "$hour" = "0010" -o "$hour" = "0020" -o "$hour" = "1200" ]
+if [ "$hour" = "0010" -o "$hour" = "1200" ]
 then
   echo "Scheduled rebooting at $(date) ..." >&2
   (

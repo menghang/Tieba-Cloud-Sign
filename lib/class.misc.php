@@ -333,7 +333,7 @@ class misc {
 			$r = self::DoSign_Mobile($uid,$kw,$id,$pid,$fid,$ck);
 			$v = json_decode($r,true);
 			if($v != $r && $v != NULL){//decode失败时会直接返回原文或NULL
-				if (empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
+				if (empty($v['no'])){//|| $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
 					$status_succ = true;
 				} else {
 					$error_code  = $v['no'];
